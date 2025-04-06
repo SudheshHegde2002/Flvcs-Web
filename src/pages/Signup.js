@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FiUserPlus, FiGithub } from 'react-icons/fi';
 
+import { signupUser } from '../utils/data_utils';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -121,10 +122,6 @@ const Signup = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.name) {
-      newErrors.name = 'Name is required';
-    }
-    
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -147,31 +144,61 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Signup form submitted');
     
     if (!validateForm()) {
+      console.log('Form validation failed, aborting signup');
       return;
     }
     
     setIsLoading(true);
+    console.log('Setting loading state to true');
     
     try {
-      // In a real app, we would make an API call here
-      // For demo purposes, we'll just simulate a signup
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Attempting signup with:', { 
+        name: formData.name,
+        email: formData.email, 
+        password: '********' 
+      });
       
-      // Save a fake token
-      localStorage.setItem('auth_token', 'fake_token_123');
+      // Call the signup API function from data_utils.js
+      const response = await signupUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      
+      console.log('Signup successful:', response);
       
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (error) {
       console.error('Signup error:', error);
-      setErrors({
-        general: 'Error creating account. Please try again.'
-      });
+      
+      // Handle different error types
+      if (error.status === 409) {
+        setErrors({
+          email: 'Email already exists',
+          general: 'An account with this email already exists'
+        });
+      } else if (error.message) {
+        setErrors({
+          general: error.message
+        });
+      } else {
+        setErrors({
+          general: 'An error occurred during signup. Please try again.'
+        });
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGithubSignup = () => {
+    // GitHub signup logic would be implemented here
+    console.log('GitHub signup clicked');
+    alert('GitHub signup would be implemented in a real application');
   };
 
   return (
@@ -197,7 +224,7 @@ const Signup = () => {
           <SocialLoginButton 
             variant="outline" 
             size="lg" 
-            onClick={() => {}} 
+            onClick={handleGithubSignup} 
             fullWidth
           >
             <FiGithub /> Sign up with GitHub
@@ -213,17 +240,6 @@ const Signup = () => {
                 {errors.general}
               </div>
             )}
-            
-            <Input
-              label="Full Name"
-              name="name"
-              type="text"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-              required
-            />
             
             <Input
               label="Email"

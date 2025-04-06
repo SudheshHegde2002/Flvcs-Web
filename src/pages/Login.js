@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FiLogIn, FiGithub } from 'react-icons/fi';
 
+import { loginUser } from '../utils/data_utils';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -95,6 +96,7 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setisLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -131,31 +133,58 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Login form submitted');
     
     if (!validateForm()) {
+      console.log('Form validation failed, aborting login');
       return;
     }
     
     setIsLoading(true);
+    console.log('Setting loading state to true');
     
     try {
-      // In a real app, we would make an API call here
-      // For demo purposes, we'll just simulate a login
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Attempting login with:', { 
+        email: formData.email, 
+        password: '********' 
+      });
       
-      // Save a fake token
-      localStorage.setItem('auth_token', 'fake_token_123');
+      // Call the login API function from data_utils.js
+      const response = await loginUser({
+        email: formData.email,
+        password: formData.password
+      });
       
-      // Redirect to dashboard
-      navigate('/dashboard');
+      if (response && response.uid) {
+        setisLoggedIn(true);
+        console.log('Login successful:', response);
+        navigate('/dashboard');
+      }  
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({
-        general: 'Invalid email or password'
-      });
+      // Handle different error types
+      if (error.status === 401) {
+        setErrors({
+          general: 'Invalid email or password'
+        });
+      } else if (error.message) {
+        setErrors({
+          general: error.message
+        });
+      } else {
+        setErrors({
+          general: 'An error occurred during login or user is invalid. Please Sign In'
+        });
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGithubLogin = () => {
+    // GitHub login logic would be implemented here
+    console.log('GitHub login clicked');
+    alert('GitHub login would be implemented in a real application');
   };
 
   return (
@@ -181,7 +210,7 @@ const Login = () => {
           <SocialLoginButton 
             variant="outline" 
             size="lg" 
-            onClick={() => {}} 
+            onClick={handleGithubLogin} 
             fullWidth
           >
             <FiGithub /> Continue with GitHub
