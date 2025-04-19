@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiLogIn, FiGithub } from 'react-icons/fi';
+import { FiLogIn } from 'react-icons/fi';
 
 import { loginUser } from '../utils/data_utils';
 import Input from '../components/common/Input';
@@ -45,29 +45,6 @@ const Subtitle = styled.p`
 
 const Form = styled.form`
   width: 100%;
-`;
-
-const SocialLoginButton = styled(Button)`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
-`;
-
-const Divider = styled.div`
-  display: flex;
-  align-items: center;
-  margin: ${({ theme }) => theme.spacing.lg} 0;
-  
-  &:before, &:after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: ${({ theme }) => theme.colors.border};
-  }
-  
-  span {
-    padding: 0 ${({ theme }) => theme.spacing.sm};
-    color: ${({ theme }) => theme.colors.textLight};
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-  }
 `;
 
 const ForgotPassword = styled(Link)`
@@ -181,12 +158,6 @@ const Login = () => {
     }
   };
 
-  const handleGithubLogin = () => {
-    // GitHub login logic would be implemented here
-    console.log('GitHub login clicked');
-    alert('GitHub login would be implemented in a real application');
-  };
-
   return (
     <PageContainer>
       <motion.div
@@ -206,19 +177,6 @@ const Login = () => {
             </Logo>
             <Subtitle>Log in to manage your FL Studio projects</Subtitle>
           </CardHeader>
-          
-          <SocialLoginButton 
-            variant="outline" 
-            size="lg" 
-            onClick={handleGithubLogin} 
-            fullWidth
-          >
-            <FiGithub /> Continue with GitHub
-          </SocialLoginButton>
-          
-          <Divider>
-            <span>OR</span>
-          </Divider>
           
           <Form onSubmit={handleSubmit}>
             {errors.general && (

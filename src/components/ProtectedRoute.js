@@ -2,24 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For development, we'll default to true
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Default to false until verified
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    // Here we would check if the user is authenticated by checking local storage or cookies
-    // For now, we'll just simulate a API call
+    // Check if the user is authenticated by checking local storage
     const checkAuth = async () => {
       try {
-        // In a real app, we would check for a token in localStorage
+        // Check for a token in localStorage
         const token = localStorage.getItem('auth_token');
         
         // If no token, user is not authenticated
         if (!token) {
+          console.log('No auth token found, redirecting to login');
           setIsAuthenticated(false);
+        } else {
+          console.log('Auth token found, user is authenticated');
+          setIsAuthenticated(true);
         }
-        
-        // In a real app, we would verify the token with an API call
         
         setIsLoading(false);
       } catch (error) {

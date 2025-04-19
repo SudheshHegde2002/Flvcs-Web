@@ -65,7 +65,9 @@ export const loginUser = async (credentials) => {
       const response = await api.post(user_log_in, credentials);
       if (response && response.data) {
         const uid = response.data.uid;
-        localStorage.setItem('user_data', JSON.stringify(uid || {}));
+        // Save both user data and auth token
+        localStorage.setItem('user_data', JSON.stringify(response.data || {}));
+        localStorage.setItem('auth_token', response.data.uid || '');
         console.log("Response is", response.data);
         return response.data; // Return only the data, not full response
       }
