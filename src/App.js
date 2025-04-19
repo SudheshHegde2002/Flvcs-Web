@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Repository from './pages/Repository';
+import CreateRepository from './pages/CreateRepository';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 
@@ -32,6 +33,11 @@ function App() {
             <Route path="/repository/:id" element={
               <ProtectedRoute>
                 <Repository />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-repository" element={
+              <ProtectedRoute>
+                <CreateRepository />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={

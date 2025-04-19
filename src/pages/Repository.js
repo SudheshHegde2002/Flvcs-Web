@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
   FiFileText, FiFolder, FiDownload, FiUpload, 
-  FiStar, FiInfo, FiClock, FiEdit3, FiTrash2
+  FiStar, FiInfo, FiClock, FiEdit3, FiTrash2, FiCopy, FiCheck
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -222,29 +222,62 @@ const IconButton = styled.button`
   }
 `;
 
-const EmptyState = styled.div`
+const EmptyRepoContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme }) => theme.spacing.xxl};
+  padding: ${({ theme }) => theme.spacing.xl};
   text-align: center;
   
   svg {
-    font-size: 3rem;
+    font-size: 4rem;
     color: ${({ theme }) => theme.colors.textLight};
     margin-bottom: ${({ theme }) => theme.spacing.lg};
   }
   
   h3 {
-    color: ${({ theme }) => theme.colors.text};
+    font-size: ${({ theme }) => theme.fontSizes.xl};
     margin-bottom: ${({ theme }) => theme.spacing.md};
   }
   
   p {
     color: ${({ theme }) => theme.colors.textLight};
-    max-width: 400px;
     margin-bottom: ${({ theme }) => theme.spacing.xl};
+    max-width: 600px;
+  }
+`;
+
+const ConnectionStringContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin-top: ${({ theme }) => theme.spacing.xl};
+`;
+
+const ConnectionStringLabel = styled.div`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textLight};
+  margin-bottom: ${({ theme }) => theme.spacing.xs};
+`;
+
+const ConnectionStringBox = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.inputBg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  padding: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  
+  code {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Roboto Mono', monospace;
+    color: ${({ theme }) => theme.colors.text};
   }
 `;
 
@@ -255,99 +288,54 @@ const Repository = () => {
   const [files, setFiles] = useState([]);
   const [activeTab, setActiveTab] = useState('files');
   const [currentPath, setCurrentPath] = useState('/');
+  const [copySuccess, setCopySuccess] = useState(false);
+  const copyTimeout = useRef(null);
 
   useEffect(() => {
-    // Simulating API call to get repository details
-    const fetchData = async () => {
+    // Simulating API call to get repository data
+    const fetchRepository = async () => {
       try {
         // In a real app, we would fetch from an API
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Mock repository data
+        // Create an empty repository
         setRepository({
           id,
-          name: id === '1' ? 'summer-edm-project' : 'lofi-beats-collection',
-          description: id === '1' 
-            ? 'Progressive house and future bass tracks with vocal samples for summer playlist.' 
-            : 'Chill lo-fi beats with jazz samples and vinyl effects for study/relaxation.',
-          created_at: '2023-01-15T09:20:00Z',
-          updated_at: '2023-04-01T10:30:00Z',
-          file_count: id === '1' ? 24 : 18,
-          size: id === '1' ? '1.2GB' : '850MB',
-          language: 'FL Studio',
-          stars: 5
+          name: `repository-${id}`,
+          description: 'This is a new repository for FL Studio projects',
+          stars: 0,
+          file_count: 0,
+          size: '0 KB',
+          updated_at: new Date().toISOString(),
+          language: 'FL Studio'
         });
         
-        // Mock files data
-        setFiles([
-          {
-            id: 1,
-            name: 'Projects',
-            type: 'folder',
-            size: '--',
-            updated_at: '2023-03-28T14:30:00Z'
-          },
-          {
-            id: 2,
-            name: 'Samples',
-            type: 'folder',
-            size: '--',
-            updated_at: '2023-03-25T11:20:00Z'
-          },
-          {
-            id: 3,
-            name: 'main-project.flp',
-            type: 'file',
-            size: '15.2MB',
-            updated_at: '2023-04-01T10:30:00Z'
-          },
-          {
-            id: 4,
-            name: 'vocals.wav',
-            type: 'file',
-            size: '124.5MB',
-            updated_at: '2023-03-20T09:15:00Z'
-          },
-          {
-            id: 5,
-            name: 'bass.wav',
-            type: 'file',
-            size: '56.8MB',
-            updated_at: '2023-03-18T16:45:00Z'
-          },
-          {
-            id: 6,
-            name: 'mastering-chain.fst',
-            type: 'file',
-            size: '2.1MB',
-            updated_at: '2023-03-15T13:10:00Z'
-          },
-          {
-            id: 7,
-            name: 'README.md',
-            type: 'file',
-            size: '4KB',
-            updated_at: '2023-03-10T08:30:00Z'
-          }
-        ]);
+        // Empty files array for new repository
+        setFiles([]);
         
-        setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching repository:', error);
+      } finally {
         setIsLoading(false);
       }
     };
-
-    fetchData();
+    
+    fetchRepository();
+    
+    return () => {
+      if (copyTimeout.current) {
+        clearTimeout(copyTimeout.current);
+      }
+    };
   }, [id]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
   };
 
   const handleFileClick = (file) => {
@@ -364,6 +352,23 @@ const Repository = () => {
   };
 
   const pathParts = currentPath.split('/').filter(Boolean);
+
+  const copyConnectionString = () => {
+    const connectionString = `flvcs://${repository.name}@flvcs.com/${id}`;
+    navigator.clipboard.writeText(connectionString).then(() => {
+      setCopySuccess(true);
+      
+      if (copyTimeout.current) {
+        clearTimeout(copyTimeout.current);
+      }
+      
+      copyTimeout.current = setTimeout(() => {
+        setCopySuccess(false);
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  };
 
   if (isLoading) {
     return (
@@ -467,9 +472,35 @@ const Repository = () => {
             </FileExplorerActions>
           </FileExplorerHeader>
           
-          <FilesList>
-            {files.length > 0 ? (
-              files.map((file, index) => (
+          {files.length === 0 ? (
+            <EmptyRepoContainer>
+              <FiFolder />
+              <h3>This repository is empty</h3>
+              <p>
+                Get started by uploading your FL Studio project files. You can drag and drop 
+                files or use the upload button above.
+              </p>
+              
+              <ConnectionStringContainer>
+                <ConnectionStringLabel>Repository Connection String</ConnectionStringLabel>
+                <ConnectionStringBox>
+                  <code>flvcs://{repository.name}@flvcs.com/{id}</code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyConnectionString}
+                  >
+                    {copySuccess ? <FiCheck color="green" /> : <FiCopy />}
+                  </Button>
+                </ConnectionStringBox>
+                <Button variant="primary" onClick={copyConnectionString}>
+                  {copySuccess ? 'Copied!' : 'Copy Connection String'}
+                </Button>
+              </ConnectionStringContainer>
+            </EmptyRepoContainer>
+          ) : (
+            <FilesList>
+              {files.map((file, index) => (
                 <FileItem 
                   key={file.id}
                   onClick={() => handleFileClick(file)}
@@ -500,20 +531,9 @@ const Repository = () => {
                     </IconButton>
                   </FileActions>
                 </FileItem>
-              ))
-            ) : (
-              <EmptyState>
-                <FiFolder />
-                <h3>This folder is empty</h3>
-                <p>
-                  Upload files or create a new folder to start organizing your project
-                </p>
-                <Button variant="primary">
-                  <FiUpload /> Upload Files
-                </Button>
-              </EmptyState>
-            )}
-          </FilesList>
+              ))}
+            </FilesList>
+          )}
         </FilesContainer>
       </RepoContainer>
     </DashboardLayout>

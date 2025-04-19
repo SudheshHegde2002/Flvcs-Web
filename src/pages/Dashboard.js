@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiFolder, FiStar, FiClock, FiPlusCircle } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -206,6 +206,7 @@ const Dashboard = () => {
     recentlyUpdated: 0
   });
   const [repositories, setRepositories] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulating API call to get user's repositories
@@ -214,77 +215,36 @@ const Dashboard = () => {
         // In a real app, we would fetch from an API
         await new Promise(resolve => setTimeout(resolve, 800));
         
+        // Empty the data but keep structure
         setStats({
-          totalProjects: 12,
-          starred: 5,
-          recentlyUpdated: 3
+          totalProjects: 0,
+          starred: 0,
+          recentlyUpdated: 0
         });
         
-        setRepositories([
-          {
-            id: 1,
-            name: 'summer-edm-project',
-            description: 'Progressive house and future bass tracks with vocal samples for summer playlist.',
-            updated_at: '2023-04-01T10:30:00Z',
-            file_count: 24,
-            size: '1.2GB',
-            language: 'FL Studio'
-          },
-          {
-            id: 2,
-            name: 'lofi-beats-collection',
-            description: 'Chill lo-fi beats with jazz samples and vinyl effects for study/relaxation.',
-            updated_at: '2023-03-15T14:20:00Z',
-            file_count: 18,
-            size: '850MB',
-            language: 'FL Studio'
-          },
-          {
-            id: 3,
-            name: 'trap-samples-2024',
-            description: 'Custom drum samples and 808s for trap production with mixing presets.',
-            updated_at: '2023-03-28T09:45:00Z',
-            file_count: 42,
-            size: '2.1GB',
-            language: 'FL Studio'
-          },
-          {
-            id: 4,
-            name: 'vocal-chops-library',
-            description: 'Processed and chopped vocal samples ready for EDM production.',
-            updated_at: '2023-02-20T11:10:00Z',
-            file_count: 36,
-            size: '1.5GB',
-            language: 'FL Studio'
-          },
-          {
-            id: 5,
-            name: 'synthwave-templates',
-            description: '80s inspired synthwave project templates with retro synth presets.',
-            updated_at: '2023-01-05T16:30:00Z',
-            file_count: 15,
-            size: '1.8GB',
-            language: 'FL Studio'
-          }
-        ]);
+        setRepositories([]);
         
-        setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching dashboard data:', error);
+      } finally {
         setIsLoading(false);
       }
     };
-
+    
     fetchData();
   }, []);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  const handleCreateRepository = () => {
+    navigate('/create-repository');
   };
 
   return (
@@ -292,102 +252,98 @@ const Dashboard = () => {
       <DashboardContainer>
         <DashboardHeader>
           <Title>Dashboard</Title>
-          <Button>
+          <Button 
+            variant="primary" 
+            onClick={handleCreateRepository}
+          >
             <FiPlusCircle /> New Repository
           </Button>
         </DashboardHeader>
         
-        <StatsContainer>
-          <StatCard
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
-            <FiFolder />
-            <h3>{stats.totalProjects}</h3>
-            <p>Total Projects</p>
-          </StatCard>
-          
-          <StatCard
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <FiStar />
-            <h3>{stats.starred}</h3>
-            <p>Starred Projects</p>
-          </StatCard>
-          
-          <StatCard
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-          >
-            <FiClock />
-            <h3>{stats.recentlyUpdated}</h3>
-            <p>Recently Updated</p>
-          </StatCard>
-        </StatsContainer>
-        
-        <SectionTitle>Recent Projects</SectionTitle>
-        
-        <RepoGrid>
-          {repositories.map((repo, index) => (
-            <RepoCard
-              key={repo.id}
-              as={motion.div}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              interactive
-            >
-              <RepoHeader>
-                <RepoTitle to={`/repository/${repo.id}`}>{repo.name}</RepoTitle>
-                <RepoDescription>{repo.description}</RepoDescription>
-              </RepoHeader>
-              
-              <RepoContent>
-                <RepoStats>
-                  <div>{repo.file_count} files</div>
-                  <div>{repo.size}</div>
-                </RepoStats>
+        {isLoading ? (
+          <div>Loading dashboard data...</div>
+        ) : (
+          <>
+            <StatsContainer>
+              <StatCard>
+                <FiFolder />
+                <h3>{stats.totalProjects}</h3>
+                <p>Total Projects</p>
+              </StatCard>
+              <StatCard>
+                <FiStar />
+                <h3>{stats.starred}</h3>
+                <p>Starred Projects</p>
+              </StatCard>
+              <StatCard>
+                <FiClock />
+                <h3>{stats.recentlyUpdated}</h3>
+                <p>Recently Updated</p>
+              </StatCard>
+            </StatsContainer>
+            
+            <SectionTitle>Recent Repositories</SectionTitle>
+            {repositories.length === 0 ? (
+              <p>No repositories found.</p>
+            ) : (
+              <RepoGrid>
+                {repositories.map((repo, index) => (
+                  <RepoCard
+                    key={repo.id}
+                    as={motion.div}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    interactive
+                  >
+                    <RepoHeader>
+                      <RepoTitle to={`/repository/${repo.id}`}>{repo.name}</RepoTitle>
+                      <RepoDescription>{repo.description}</RepoDescription>
+                    </RepoHeader>
+                    
+                    <RepoContent>
+                      <RepoStats>
+                        <div>{repo.file_count} files</div>
+                        <div>{repo.size}</div>
+                      </RepoStats>
+                      
+                      <LastUpdated>
+                        <FiClock />
+                        Updated on {formatDate(repo.updated_at)}
+                      </LastUpdated>
+                    </RepoContent>
+                    
+                    <RepoFooter>
+                      <RepoLanguage>
+                        <span></span>
+                        {repo.language}
+                      </RepoLanguage>
+                      
+                      <Button variant="ghost" size="sm">
+                        <FiStar />
+                      </Button>
+                    </RepoFooter>
+                  </RepoCard>
+                ))}
                 
-                <LastUpdated>
-                  <FiClock />
-                  Updated on {formatDate(repo.updated_at)}
-                </LastUpdated>
-              </RepoContent>
-              
-              <RepoFooter>
-                <RepoLanguage>
-                  <span></span>
-                  {repo.language}
-                </RepoLanguage>
-                
-                <Button variant="ghost" size="sm">
-                  <FiStar />
-                </Button>
-              </RepoFooter>
-            </RepoCard>
-          ))}
-          
-          <CreateRepoCard
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: repositories.length * 0.1 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <FiPlusCircle />
-            <h3>Create new project</h3>
-            <p>Start a new FL Studio project repository</p>
-            <Button variant="primary">Create Repository</Button>
-          </CreateRepoCard>
-        </RepoGrid>
+                <CreateRepoCard
+                  as={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCreateRepository}
+                >
+                  <FiPlusCircle />
+                  <h3>Create new project</h3>
+                  <p>Start a new FL Studio project repository</p>
+                  <Button variant="primary">Create Repository</Button>
+                </CreateRepoCard>
+              </RepoGrid>
+            )}
+          </>
+        )}
       </DashboardContainer>
     </DashboardLayout>
   );

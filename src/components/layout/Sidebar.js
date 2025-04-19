@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { FiHome, FiFolder, FiStar, FiArchive, FiPlusCircle, FiSettings } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
@@ -142,14 +142,14 @@ const RecentRepoItem = styled(NavLink)`
 `;
 
 const Sidebar = () => {
-  // Mock data for recent repositories
-  const recentRepos = [
-    { id: 1, name: 'summer-edm-project' },
-    { id: 2, name: 'lofi-beats-collection' },
-    { id: 3, name: 'trap-samples-2024' },
-    { id: 4, name: 'vocal-chops-library' },
-    { id: 5, name: 'synthwave-templates' },
-  ];
+  const navigate = useNavigate();
+  
+  // Empty recent repositories
+  const recentRepos = [];
+
+  const handleCreateRepo = () => {
+    navigate('/create-repository');
+  };
 
   return (
     <SidebarContainer>
@@ -181,6 +181,7 @@ const Sidebar = () => {
       <CreateButton 
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        onClick={handleCreateRepo}
       >
         <FiPlusCircle /> New Repository
       </CreateButton>
@@ -188,14 +189,18 @@ const Sidebar = () => {
       <NavSection>
         <h3>Recent Projects</h3>
         <RecentReposList>
-          {recentRepos.map(repo => (
-            <RecentRepoItem 
-              key={repo.id}
-              to={`/repository/${repo.id}`}
-            >
-              <span>{repo.name}</span>
-            </RecentRepoItem>
-          ))}
+          {recentRepos.length === 0 ? (
+            <div style={{ padding: '0 16px', color: '#888', fontSize: '14px' }}>No recent projects</div>
+          ) : (
+            recentRepos.map(repo => (
+              <RecentRepoItem 
+                key={repo.id}
+                to={`/repository/${repo.id}`}
+              >
+                <span>{repo.name}</span>
+              </RecentRepoItem>
+            ))
+          )}
         </RecentReposList>
       </NavSection>
       

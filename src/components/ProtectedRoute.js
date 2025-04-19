@@ -34,7 +34,6 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   if (isLoading) {
-    // You could add a loading spinner here
     return <div>Loading...</div>;
   }
 
