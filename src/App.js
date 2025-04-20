@@ -12,6 +12,7 @@ import Repository from './pages/Repository';
 import CreateRepository from './pages/CreateRepository';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import LoginFromClient from './pages/LoginFromClient';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,6 +25,7 @@ function App() {
         <AnimatePresence mode="wait">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/login-from-client" element={<LoginFromClient />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
