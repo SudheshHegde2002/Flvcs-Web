@@ -12,6 +12,7 @@ import Repository from './pages/Repository';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import LoginFromClient from './pages/LoginFromClient';
+import DownloadClient from './pages/DownloadClient';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/login-from-client" element={<LoginFromClient />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/download-client" element={<DownloadClient />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />

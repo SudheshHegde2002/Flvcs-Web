@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiSettings } from 'react-icons/fi';
+import { FiUser, FiSettings, FiDownload } from 'react-icons/fi';
 
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -136,6 +136,33 @@ const DropdownLogout = styled.button`
   }
 `;
 
+const DownloadButton = styled(Link)`
+  display: flex;
+  align-items: center;
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.secondary} 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  text-decoration: none;
+  gap: ${({ theme }) => theme.spacing.sm};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    font-size: 16px;
+  }
+`;
+
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -147,6 +174,9 @@ const Header = () => {
       </Logo>
 
       <UserNav>
+        <DownloadButton to="/download-client">
+          <FiDownload /> Download Client
+        </DownloadButton>
         <ThemeToggle />
 
         <UserDropdownWrapper>
