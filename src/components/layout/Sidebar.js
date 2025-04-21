@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FiHome, FiFolder, FiStar, FiArchive, FiPlusCircle, FiSettings } from 'react-icons/fi';
+import { FiHome, FiFolder, FiStar, FiArchive, FiSettings } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 const SidebarContainer = styled.aside`
@@ -86,71 +86,9 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
-const CreateButton = styled(motion.button)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: ${({ theme }) => `${theme.spacing.lg} ${theme.spacing.lg}`};
-  padding: ${({ theme }) => theme.spacing.md};
-  background-color: ${({ theme }) => theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all ${({ theme }) => theme.transitions.fast};
-  
-  svg {
-    margin-right: ${({ theme }) => theme.spacing.sm};
-  }
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.secondary};
-  }
-`;
-
-const RecentReposList = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.lg};
-  flex: 1;
-  overflow-y: auto;
-`;
-
-const RecentRepoItem = styled(NavLink)`
-  display: flex;
-  align-items: center;
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
-  color: ${({ theme }) => theme.colors.text};
-  transition: all ${({ theme }) => theme.transitions.fast};
-  text-decoration: none;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.primary};
-  }
-  
-  &.active {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => `${theme.colors.primary}10`};
-  }
-  
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
 const Sidebar = () => {
   const navigate = useNavigate();
   
-  // Empty recent repositories
-  const recentRepos = [];
-
-  const handleCreateRepo = () => {
-    navigate('/create-repository');
-  };
-
   return (
     <SidebarContainer>
       <NavSection>
@@ -176,32 +114,6 @@ const Sidebar = () => {
             </StyledNavLink>
           </NavItem>
         </NavList>
-      </NavSection>
-      
-      <CreateButton 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleCreateRepo}
-      >
-        <FiPlusCircle /> New Repository
-      </CreateButton>
-      
-      <NavSection>
-        <h3>Recent Projects</h3>
-        <RecentReposList>
-          {recentRepos.length === 0 ? (
-            <div style={{ padding: '0 16px', color: '#888', fontSize: '14px' }}>No recent projects</div>
-          ) : (
-            recentRepos.map(repo => (
-              <RecentRepoItem 
-                key={repo.id}
-                to={`/repository/${repo.id}`}
-              >
-                <span>{repo.name}</span>
-              </RecentRepoItem>
-            ))
-          )}
-        </RecentReposList>
       </NavSection>
       
       <NavSection style={{ marginTop: 'auto' }}>

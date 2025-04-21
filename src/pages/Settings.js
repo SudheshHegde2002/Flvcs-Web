@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  FiUser, FiLock, FiCreditCard, FiGlobe, 
-  FiBell, FiShield, FiLogOut, FiSave
+  FiUser, FiLock, FiCreditCard, FiLogOut, FiSave
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -144,81 +143,6 @@ const AvatarActions = styled.div`
   gap: ${({ theme }) => theme.spacing.md};
 `;
 
-const ToggleOption = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${({ theme }) => `${theme.spacing.md} 0`};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const ToggleLabel = styled.div`
-  display: flex;
-  flex-direction: column;
-  
-  h3 {
-    font-size: ${({ theme }) => theme.fontSizes.md};
-    color: ${({ theme }) => theme.colors.text};
-    margin: 0;
-    margin-bottom: ${({ theme }) => theme.spacing.xs};
-  }
-  
-  p {
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-    color: ${({ theme }) => theme.colors.textLight};
-    margin: 0;
-  }
-`;
-
-const ToggleSwitch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 24px;
-  
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  span {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: ${({ theme }) => theme.colors.border};
-    transition: .4s;
-    border-radius: 24px;
-    
-    &:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-  }
-  
-  input:checked + span {
-    background-color: ${({ theme }) => theme.colors.primary};
-  }
-  
-  input:checked + span:before {
-    transform: translateX(24px);
-  }
-`;
-
 const DangerZone = styled.div`
   margin-top: ${({ theme }) => theme.spacing.xl};
   padding-top: ${({ theme }) => theme.spacing.xl};
@@ -259,12 +183,6 @@ const Settings = () => {
     newPassword: '',
     confirmPassword: ''
   });
-  const [notifications, setNotifications] = useState({
-    emailNotifications: true,
-    projectUpdates: true,
-    securityAlerts: true,
-    marketingEmails: false
-  });
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -272,14 +190,6 @@ const Settings = () => {
     setFormData({
       ...formData,
       [name]: value
-    });
-  };
-
-  const handleToggleChange = (e) => {
-    const { name, checked } = e.target;
-    setNotifications({
-      ...notifications,
-      [name]: checked
     });
   };
 
@@ -433,85 +343,6 @@ const Settings = () => {
     </SettingsSection>
   );
 
-  const renderNotificationsSection = () => (
-    <SettingsSection>
-      <SectionHeader>
-        <SectionTitle>Notifications</SectionTitle>
-      </SectionHeader>
-      <SectionContent>
-        <ToggleOption>
-          <ToggleLabel>
-            <h3>Email Notifications</h3>
-            <p>Receive notifications via email</p>
-          </ToggleLabel>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              name="emailNotifications"
-              checked={notifications.emailNotifications}
-              onChange={handleToggleChange}
-            />
-            <span></span>
-          </ToggleSwitch>
-        </ToggleOption>
-        
-        <ToggleOption>
-          <ToggleLabel>
-            <h3>Project Updates</h3>
-            <p>Get notified when your projects are updated or changed</p>
-          </ToggleLabel>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              name="projectUpdates"
-              checked={notifications.projectUpdates}
-              onChange={handleToggleChange}
-            />
-            <span></span>
-          </ToggleSwitch>
-        </ToggleOption>
-        
-        <ToggleOption>
-          <ToggleLabel>
-            <h3>Security Alerts</h3>
-            <p>Receive alerts about security-related activity on your account</p>
-          </ToggleLabel>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              name="securityAlerts"
-              checked={notifications.securityAlerts}
-              onChange={handleToggleChange}
-            />
-            <span></span>
-          </ToggleSwitch>
-        </ToggleOption>
-        
-        <ToggleOption>
-          <ToggleLabel>
-            <h3>Marketing Emails</h3>
-            <p>Receive marketing emails about new features and updates</p>
-          </ToggleLabel>
-          <ToggleSwitch>
-            <input
-              type="checkbox"
-              name="marketingEmails"
-              checked={notifications.marketingEmails}
-              onChange={handleToggleChange}
-            />
-            <span></span>
-          </ToggleSwitch>
-        </ToggleOption>
-        
-        <ButtonsContainer>
-          <Button variant="primary" onClick={handleSubmit}>
-            <FiSave /> Save Preferences
-          </Button>
-        </ButtonsContainer>
-      </SectionContent>
-    </SettingsSection>
-  );
-
   return (
     <DashboardLayout>
       <SettingsContainer>
@@ -536,28 +367,10 @@ const Settings = () => {
                 <FiLock /> Security
               </SidebarItem>
               <SidebarItem 
-                active={activeSection === 'notifications'} 
-                onClick={() => setActiveSection('notifications')}
-              >
-                <FiBell /> Notifications
-              </SidebarItem>
-              <SidebarItem 
                 active={activeSection === 'billing'} 
                 onClick={() => setActiveSection('billing')}
               >
                 <FiCreditCard /> Billing
-              </SidebarItem>
-              <SidebarItem 
-                active={activeSection === 'integrations'} 
-                onClick={() => setActiveSection('integrations')}
-              >
-                <FiGlobe /> Integrations
-              </SidebarItem>
-              <SidebarItem 
-                active={activeSection === 'privacy'} 
-                onClick={() => setActiveSection('privacy')}
-              >
-                <FiShield /> Privacy
               </SidebarItem>
               <SidebarItem onClick={handleLogout}>
                 <FiLogOut /> Logout
@@ -568,7 +381,6 @@ const Settings = () => {
           <SettingsContent>
             {activeSection === 'profile' && renderProfileSection()}
             {activeSection === 'security' && renderSecuritySection()}
-            {activeSection === 'notifications' && renderNotificationsSection()}
             {activeSection === 'billing' && (
               <SettingsSection>
                 <SectionHeader>
@@ -576,26 +388,6 @@ const Settings = () => {
                 </SectionHeader>
                 <SectionContent>
                   <p>Billing settings are not available in the demo.</p>
-                </SectionContent>
-              </SettingsSection>
-            )}
-            {activeSection === 'integrations' && (
-              <SettingsSection>
-                <SectionHeader>
-                  <SectionTitle>Integrations</SectionTitle>
-                </SectionHeader>
-                <SectionContent>
-                  <p>Integration settings are not available in the demo.</p>
-                </SectionContent>
-              </SettingsSection>
-            )}
-            {activeSection === 'privacy' && (
-              <SettingsSection>
-                <SectionHeader>
-                  <SectionTitle>Privacy</SectionTitle>
-                </SectionHeader>
-                <SectionContent>
-                  <p>Privacy settings are not available in the demo.</p>
                 </SectionContent>
               </SettingsSection>
             )}

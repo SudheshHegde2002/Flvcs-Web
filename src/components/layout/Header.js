@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiSearch, FiUser, FiBell, FiSettings } from 'react-icons/fi';
+import { FiUser, FiSettings } from 'react-icons/fi';
 
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -35,41 +35,6 @@ const Logo = styled(Link)`
   }
 `;
 
-const SearchBar = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: ${({ theme }) => theme.colors.background};
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
-  width: 100%;
-  max-width: 500px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:focus-within {
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 3px ${({ theme }) => `${theme.colors.primary}33`};
-  }
-
-  svg {
-    color: ${({ theme }) => theme.colors.textLight};
-    margin-right: ${({ theme }) => theme.spacing.sm};
-  }
-
-  input {
-    border: none;
-    background: transparent;
-    width: 100%;
-    outline: none;
-    color: ${({ theme }) => theme.colors.text};
-    font-size: ${({ theme }) => theme.fontSizes.md};
-
-    &::placeholder {
-      color: ${({ theme }) => theme.colors.textLight};
-    }
-  }
-`;
-
 const UserNav = styled.div`
   display: flex;
   align-items: center;
@@ -96,16 +61,6 @@ const IconButton = styled(motion.button)`
   }
 `;
 
-const NotificationDot = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${({ theme }) => theme.colors.primary};
-`;
-
 const UserDropdownWrapper = styled.div`
   position: relative;
 `;
@@ -121,6 +76,10 @@ const UserAvatar = styled.div`
   color: white;
   font-weight: 600;
   cursor: pointer;
+  
+  svg {
+    font-size: 20px;
+  }
 `;
 
 const UserDropdown = styled(motion.div)`
@@ -178,16 +137,8 @@ const DropdownLogout = styled.button`
 `;
 
 const Header = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
 
   return (
     <HeaderContainer>
@@ -195,29 +146,12 @@ const Header = () => {
         <span>FLVCS</span>
       </Logo>
 
-      <form onSubmit={handleSearch}>
-        <SearchBar>
-          <FiSearch />
-          <input
-            type="text"
-            placeholder="Search repositories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </SearchBar>
-      </form>
-
       <UserNav>
         <ThemeToggle />
-        
-        <IconButton whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-          <FiBell />
-          <NotificationDot />
-        </IconButton>
 
         <UserDropdownWrapper>
           <UserAvatar onClick={() => setDropdownOpen(!dropdownOpen)}>
-            JS
+            <FiUser />
           </UserAvatar>
           
           {dropdownOpen && (
