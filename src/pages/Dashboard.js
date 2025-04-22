@@ -6,7 +6,9 @@ import { FiFolder } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
-
+import { totalProjects
+  
+ } from '../utils/data_utils';
 const DashboardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -66,24 +68,17 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulating API call to get user's repositories
     const fetchData = async () => {
       try {
-        // In a real app, we would fetch from an API
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Empty the data but keep structure
-        setStats({
-          totalProjects: 0
-        });
-        
+        const total = await totalProjects();
+        setStats({ totalProjects: total });
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    
+  
     fetchData();
   }, []);
 

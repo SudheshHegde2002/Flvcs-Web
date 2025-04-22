@@ -9,11 +9,8 @@ const app_engine_url = env.local;
 
 const user_sign_up = app_engine_url + '/signup' //post
 const user_log_in = app_engine_url + '/login'  //post
+const project_metadata =app_engine_url +'/projects' //get
 
-console.log('API Endpoints:', { 
-    signupEndpoint: user_sign_up,
-    loginEndpoint: user_log_in
-});
 
 // Create an axios instance with common configuration
 const api = axios.create({
@@ -101,4 +98,24 @@ export const isAuthenticated = () => {
 export const getCurrentUser = () => {
     const userData = localStorage.getItem('user_data');
     return userData ? JSON.parse(userData) : null;
+};
+
+
+export const totalProjects = async () => {
+    const uid = localStorage.getItem('auth_token');
+    if (!uid) {
+        throw new Error("User not authenticated");
+    }
+
+    try {
+        const response = await api.get(project_metadata, {
+            headers: {
+                'User-ID': uid
+            }
+        });
+        return response.data.total;
+    } catch (error) {
+        console.error('Error fetching total projects:', error.response?.data || error.message);
+        throw error.response?.data || { message: 'Network error during project fetch' };
+    }
 };
