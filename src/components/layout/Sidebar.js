@@ -103,16 +103,20 @@ const Sidebar = () => {
               <FiFolder /> My Repositories
             </StyledNavLink>
           </NavItem>
+          {/*
           <NavItem>
             <StyledNavLink to="/starred">
               <FiStar /> Starred
             </StyledNavLink>
           </NavItem>
+          */}
+          {/*
           <NavItem>
             <StyledNavLink to="/archived">
               <FiArchive /> Archived
             </StyledNavLink>
           </NavItem>
+          */}
         </NavList>
       </NavSection>
       
