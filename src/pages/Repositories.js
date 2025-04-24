@@ -574,7 +574,6 @@ const Repositories = () => {
         </CommitIcon>
         <CommitDetails>
           <h3>{commit.message}</h3>
-          <p>By {commit.author}</p>
           <TimeInfo>
             <FiClock /> {formatDate(commit.date)}
           </TimeInfo>

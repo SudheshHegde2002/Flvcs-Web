@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiSettings, FiDownload } from 'react-icons/fi';
+import { FiUser, FiSettings, FiDownload, FiCreditCard, FiLogOut } from 'react-icons/fi';
 
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -191,14 +191,11 @@ const Header = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <DropdownItem to="/profile">
-                <FiUser /> Profile
-              </DropdownItem>
               <DropdownItem to="/settings">
                 <FiSettings /> Settings
               </DropdownItem>
               <DropdownLogout onClick={() => navigate('/login')}>
-                Log out
+                <FiLogOut /> Log out
               </DropdownLogout>
             </UserDropdown>
           )}

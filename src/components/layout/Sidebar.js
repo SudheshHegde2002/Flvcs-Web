@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FiHome, FiFolder, FiStar, FiArchive, FiSettings } from 'react-icons/fi';
+import { FiHome, FiFolder, FiStar, FiArchive, FiSettings, FiZap } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 const SidebarContainer = styled.aside`
@@ -86,6 +86,40 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
+const PremiumButton = styled(StyledNavLink)`
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.secondary});
+  margin: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: white;
+  font-weight: 600;
+  
+  svg {
+    color: white;
+  }
+  
+  &:hover {
+    background: linear-gradient(135deg, ${({ theme }) => theme.colors.secondary}, ${({ theme }) => theme.colors.primary});
+    color: white;
+    
+    svg {
+      color: white;
+    }
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, ${({ theme }) => theme.colors.secondary}, ${({ theme }) => theme.colors.primary});
+    color: white;
+    
+    &::before {
+      background-color: white;
+    }
+    
+    svg {
+      color: white;
+    }
+  }
+`;
+
 const Sidebar = () => {
   const navigate = useNavigate();
   
@@ -122,6 +156,11 @@ const Sidebar = () => {
       
       <NavSection style={{ marginTop: 'auto' }}>
         <NavList>
+          <NavItem>
+            <PremiumButton to="/premium">
+              <FiZap /> Go Premium
+            </PremiumButton>
+          </NavItem>
           <NavItem>
             <StyledNavLink to="/settings">
               <FiSettings /> Settings

@@ -14,6 +14,7 @@ import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import LoginFromClient from './pages/LoginFromClient';
 import DownloadClient from './pages/DownloadClient';
+import Premium from './pages/Premium';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -42,6 +43,11 @@ function App() {
             <Route path="/repository/:id" element={
               <ProtectedRoute>
                 <Repository />
+              </ProtectedRoute>
+            } />
+            <Route path="/premium" element={
+              <ProtectedRoute>
+                <Premium />
               </ProtectedRoute>
             } />
             <Route path="/settings" element={

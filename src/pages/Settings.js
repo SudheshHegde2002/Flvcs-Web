@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  FiUser, FiLock, FiCreditCard, FiLogOut, FiSave
+  FiUser, FiLock, FiCreditCard, FiLogOut, FiSave, FiZap
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
@@ -169,35 +169,43 @@ const ButtonsContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing.xl};
 `;
 
+const PremiumCard = styled(Card)`
+  border: 1px dashed ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacing.xl};
+  text-align: center;
+  background-color: ${({ theme }) => `${theme.colors.background}`};
+`;
+
+const PremiumIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}30, ${({ theme }) => theme.colors.secondary}30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto ${({ theme }) => theme.spacing.lg};
+  
+  svg {
+    font-size: 2rem;
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
+const PremiumTitle = styled.h3`
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+`;
+
+const PremiumDescription = styled.p`
+  color: ${({ theme }) => theme.colors.textLight};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+`;
+
 const Settings = () => {
-  const [activeSection, setActiveSection] = useState('profile');
-  const [formData, setFormData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    company: 'Music Productions Inc.',
-    website: 'https://johnmusic.com',
-    bio: 'Music producer specializing in EDM and lo-fi beats.',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
+  const [activeSection, setActiveSection] = useState('billing');
   const navigate = useNavigate();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // In a real app, we would save the changes here
-    alert('Settings saved successfully!');
-  };
 
   const handleLogout = () => {
     // Clear auth token and navigate to login
@@ -205,140 +213,28 @@ const Settings = () => {
     navigate('/login');
   };
 
-  const renderProfileSection = () => (
-    <SettingsSection as="form" onSubmit={handleSubmit}>
+  const renderBillingSection = () => (
+    <SettingsSection>
       <SectionHeader>
-        <SectionTitle>Profile Information</SectionTitle>
+        <SectionTitle>Billing</SectionTitle>
       </SectionHeader>
       <SectionContent>
-        <AvatarSection>
-          <Avatar>JD</Avatar>
-          <AvatarActions>
-            <Button variant="outline" size="sm">
-              Upload New Picture
-            </Button>
-            <Button variant="ghost" size="sm">
-              Remove Picture
-            </Button>
-          </AvatarActions>
-        </AvatarSection>
-        
-        <FormRow>
-          <Input
-            label="First Name"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            required
-          />
-          <Input
-            label="Last Name"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            required
-          />
-        </FormRow>
-        
-        <FormRow>
-          <Input
-            label="Email Address"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-          <Input
-            label="Phone Number"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-          />
-        </FormRow>
-        
-        <FormRow>
-          <Input
-            label="Company"
-            name="company"
-            value={formData.company}
-            onChange={handleInputChange}
-          />
-          <Input
-            label="Website"
-            name="website"
-            value={formData.website}
-            onChange={handleInputChange}
-          />
-        </FormRow>
-        
-        <Input
-          label="Bio"
-          name="bio"
-          value={formData.bio}
-          onChange={handleInputChange}
-          as="textarea"
-          rows={4}
-        />
-        
-        <ButtonsContainer>
-          <Button type="submit" variant="primary">
-            <FiSave /> Save Changes
+        <PremiumCard>
+          <PremiumIcon>
+            <FiZap />
+          </PremiumIcon>
+          <PremiumTitle>You are not a Premium user yet</PremiumTitle>
+          <PremiumDescription>
+            Upgrade to Premium to get unlimited storage, priority processing, 
+            and dedicated support from our team.
+          </PremiumDescription>
+          <Button 
+            variant="primary"
+            onClick={() => navigate('/premium')}
+          >
+            <FiZap /> Go Premium
           </Button>
-        </ButtonsContainer>
-      </SectionContent>
-    </SettingsSection>
-  );
-
-  const renderSecuritySection = () => (
-    <SettingsSection as="form" onSubmit={handleSubmit}>
-      <SectionHeader>
-        <SectionTitle>Security</SectionTitle>
-      </SectionHeader>
-      <SectionContent>
-        <Input
-          label="Current Password"
-          name="currentPassword"
-          type="password"
-          value={formData.currentPassword}
-          onChange={handleInputChange}
-          required
-        />
-        
-        <FormRow>
-          <Input
-            label="New Password"
-            name="newPassword"
-            type="password"
-            value={formData.newPassword}
-            onChange={handleInputChange}
-            required
-          />
-          <Input
-            label="Confirm New Password"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            required
-          />
-        </FormRow>
-        
-        <ButtonsContainer>
-          <Button type="submit" variant="primary">
-            <FiSave /> Update Password
-          </Button>
-        </ButtonsContainer>
-        
-        <DangerZone>
-          <DangerTitle>Delete Account</DangerTitle>
-          <DangerDescription>
-            Once you delete your account, there is no going back. Please be certain.
-          </DangerDescription>
-          <Button variant="danger">
-            Delete Account
-          </Button>
-        </DangerZone>
+        </PremiumCard>
       </SectionContent>
     </SettingsSection>
   );
@@ -355,18 +251,6 @@ const Settings = () => {
           <SettingsSidebar>
             <SidebarCard>
               <SidebarItem 
-                active={activeSection === 'profile'} 
-                onClick={() => setActiveSection('profile')}
-              >
-                <FiUser /> Profile
-              </SidebarItem>
-              <SidebarItem 
-                active={activeSection === 'security'} 
-                onClick={() => setActiveSection('security')}
-              >
-                <FiLock /> Security
-              </SidebarItem>
-              <SidebarItem 
                 active={activeSection === 'billing'} 
                 onClick={() => setActiveSection('billing')}
               >
@@ -379,18 +263,7 @@ const Settings = () => {
           </SettingsSidebar>
           
           <SettingsContent>
-            {activeSection === 'profile' && renderProfileSection()}
-            {activeSection === 'security' && renderSecuritySection()}
-            {activeSection === 'billing' && (
-              <SettingsSection>
-                <SectionHeader>
-                  <SectionTitle>Billing</SectionTitle>
-                </SectionHeader>
-                <SectionContent>
-                  <p>Billing settings are not available in the demo.</p>
-                </SectionContent>
-              </SettingsSection>
-            )}
+            {renderBillingSection()}
           </SettingsContent>
         </SettingsLayout>
       </SettingsContainer>
