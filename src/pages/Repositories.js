@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
   FiFolder, FiGitCommit, FiClock, FiDownload, FiChevronRight,
-  FiMusic, FiHeadphones, FiAlertCircle
+  FiMusic, FiHeadphones, FiAlertCircle, FiChevronDown, FiGitBranch
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { listProjects } from '../utils/data_utils';
+import { listProjects, getCommits } from '../utils/data_utils';
 
 const PageContainer = styled.div`
   display: flex;
@@ -264,18 +264,73 @@ const ErrorMessage = styled.div`
   }
 `;
 
-// Mock data for commits
-const mockCommits = {
-  'test': [
-    { id: 101, message: 'Initial commit', author: 'John Doe', date: '2023-10-15T14:30:00Z' },
-    { id: 102, message: 'Add authentication', author: 'John Doe', date: '2023-10-14T10:15:00Z' },
-    { id: 103, message: 'Fix login bug', author: 'Jane Smith', date: '2023-10-13T16:45:00Z' },
-  ],
-  'test2': [
-    { id: 201, message: 'Initial setup', author: 'Jane Smith', date: '2023-10-10T09:45:00Z' },
-    { id: 202, message: 'Add portfolio projects', author: 'Jane Smith', date: '2023-10-08T14:20:00Z' },
-  ]
-};
+const BranchSelector = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const BranchButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs};
+  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.md}`};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background-color: ${({ theme }) => theme.colors.background};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  
+  &:hover {
+    background-color: ${({ theme }) => `${theme.colors.primary}10`};
+  }
+  
+  svg {
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
+const DropdownMenu = styled(motion.div)`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 180px;
+  background-color: ${({ theme }) => theme.colors.cardBg};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  margin-top: ${({ theme }) => theme.spacing.xs};
+  overflow: hidden;
+`;
+
+const DropdownItem = styled.button`
+  width: 100%;
+  text-align: left;
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs};
+  
+  &:hover {
+    background-color: ${({ theme }) => `${theme.colors.primary}10`};
+  }
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
+  
+  svg {
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
 
 const Repositories = () => {
   const [selectedProject, setSelectedProject] = useState(null);
@@ -284,13 +339,23 @@ const Repositories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  const [branches, setBranches] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [commits, setCommits] = useState([]);
+  const [commitsLoading, setCommitsLoading] = useState(false);
+  const [commitsError, setCommitsError] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  const dropdownRef = useRef(null);
+
+  // Fetch projects on component mount
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
         const projectsData = await listProjects();
         // Transform the project names into objects with IDs
-        const formattedProjects = projectsData.map((name, index) => ({
+        const formattedProjects = projectsData.map((name) => ({
           id: name, // Using name as ID since that's what we'll need for commits
           name: name,
           lastUpdated: new Date().toISOString() // Placeholder for now
@@ -308,6 +373,101 @@ const Repositories = () => {
     fetchProjects();
   }, []);
   
+  // Fetch commits when a project is selected
+  useEffect(() => {
+    if (!selectedProject) return;
+    
+    const fetchCommits = async () => {
+      try {
+        setCommitsLoading(true);
+        setCommitsError(null);
+        
+        // Fetch commits for the selected project
+        const commitsData = await getCommits(selectedProject.name);
+        
+        // Get branch names from the response
+        const branchNames = Object.keys(commitsData);
+        setBranches(branchNames);
+        
+        // Set the default selected branch (the first one)
+        if (branchNames.length > 0) {
+          setSelectedBranch(branchNames[0]);
+          
+          // Format the commits for the selected branch
+          const branchCommits = commitsData[branchNames[0]].messages.map((message, idx) => ({
+            id: `${branchNames[0]}-${idx}`,
+            message,
+            author: 'Unknown', // Not provided by the API
+            date: new Date().toISOString() // Not provided by the API
+          }));
+          
+          setCommits(branchCommits);
+        } else {
+          setCommits([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch commits:', err);
+        setCommitsError(err.message || 'Failed to load commits');
+        setBranches([]);
+        setCommits([]);
+      } finally {
+        setCommitsLoading(false);
+      }
+    };
+    
+    fetchCommits();
+  }, [selectedProject]);
+  
+  // Handle branch change
+  useEffect(() => {
+    if (!selectedProject || !selectedBranch) return;
+    
+    const loadBranchCommits = async () => {
+      try {
+        setCommitsLoading(true);
+        
+        // Re-fetch commits (in a real app, we might cache this)
+        const commitsData = await getCommits(selectedProject.name);
+        
+        // Format the commits for the selected branch
+        if (commitsData[selectedBranch]) {
+          const branchCommits = commitsData[selectedBranch].messages.map((message, idx) => ({
+            id: `${selectedBranch}-${idx}`,
+            message,
+            author: 'Unknown', // Not provided by the API
+            date: new Date().toISOString() // Not provided by the API
+          }));
+          
+          setCommits(branchCommits);
+        } else {
+          setCommits([]);
+        }
+        
+        setCommitsError(null);
+      } catch (err) {
+        console.error('Failed to load branch commits:', err);
+        setCommitsError(err.message || 'Failed to load branch commits');
+        setCommits([]);
+      } finally {
+        setCommitsLoading(false);
+      }
+    };
+    
+    loadBranchCommits();
+  }, [selectedBranch, selectedProject]);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -320,10 +480,19 @@ const Repositories = () => {
   const handleProjectClick = (project) => {
     setSelectedProject(project);
     setSelectedCommit(null);
+    setBranches([]);
+    setSelectedBranch(null);
+    setCommits([]);
   };
   
   const handleCommitClick = (commit) => {
     setSelectedCommit(commit);
+  };
+  
+  const handleBranchSelect = (branchName) => {
+    setSelectedBranch(branchName);
+    setDropdownOpen(false);
+    setSelectedCommit(null);
   };
   
   const handleDownload = (commit) => {
@@ -375,6 +544,57 @@ const Repositories = () => {
     );
   };
   
+  const renderCommitsList = () => {
+    if (commitsLoading) {
+      return <LoadingText>Loading commits...</LoadingText>;
+    }
+    
+    if (commitsError) {
+      return (
+        <ErrorMessage>
+          <FiAlertCircle />
+          <p>{commitsError}</p>
+        </ErrorMessage>
+      );
+    }
+    
+    if (commits.length === 0) {
+      return <LoadingText>No commits found for this branch</LoadingText>;
+    }
+    
+    return commits.map(commit => (
+      <CommitItem 
+        key={commit.id}
+        active={selectedCommit && selectedCommit.id === commit.id}
+        onClick={() => handleCommitClick(commit)}
+        whileTap={{ scale: 0.98 }}
+      >
+        <CommitIcon>
+          <FiGitCommit />
+        </CommitIcon>
+        <CommitDetails>
+          <h3>{commit.message}</h3>
+          <p>By {commit.author}</p>
+          <TimeInfo>
+            <FiClock /> {formatDate(commit.date)}
+          </TimeInfo>
+        </CommitDetails>
+        <CommitActions>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload(commit);
+            }}
+          >
+            <FiDownload /> Download
+          </Button>
+        </CommitActions>
+      </CommitItem>
+    ));
+  };
+  
   return (
     <DashboardLayout>
       <PageContainer>
@@ -391,42 +611,39 @@ const Repositories = () => {
           {selectedProject ? (
             <CommitsContainer visible={true}>
               <CommitsHeader>
-                <div>{selectedProject.name} - Commits</div>
+                <div>{selectedProject.name}{selectedBranch ? ` - ${selectedBranch}` : ''}</div>
+                
+                {branches.length > 0 && (
+                  <BranchSelector ref={dropdownRef}>
+                    <BranchButton onClick={() => setDropdownOpen(!dropdownOpen)}>
+                      <FiGitBranch />
+                      {selectedBranch || 'Select Branch'}
+                      <FiChevronDown />
+                    </BranchButton>
+                    
+                    {dropdownOpen && (
+                      <DropdownMenu
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {branches.map(branch => (
+                          <DropdownItem 
+                            key={branch} 
+                            onClick={() => handleBranchSelect(branch)}
+                          >
+                            <FiGitBranch size={14} />
+                            {branch}
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    )}
+                  </BranchSelector>
+                )}
               </CommitsHeader>
               <CommitsList>
-                {mockCommits[selectedProject.id]?.map(commit => (
-                  <CommitItem 
-                    key={commit.id}
-                    active={selectedCommit && selectedCommit.id === commit.id}
-                    onClick={() => handleCommitClick(commit)}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <CommitIcon>
-                      <FiGitCommit />
-                    </CommitIcon>
-                    <CommitDetails>
-                      <h3>{commit.message}</h3>
-                      <p>By {commit.author}</p>
-                      <TimeInfo>
-                        <FiClock /> {formatDate(commit.date)}
-                      </TimeInfo>
-                    </CommitDetails>
-                    <CommitActions>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(commit);
-                        }}
-                      >
-                        <FiDownload /> Download
-                      </Button>
-                    </CommitActions>
-                  </CommitItem>
-                )) || (
-                  <LoadingText>No commits found for this project</LoadingText>
-                )}
+                {renderCommitsList()}
               </CommitsList>
             </CommitsContainer>
           ) : (
