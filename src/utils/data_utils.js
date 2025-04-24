@@ -10,7 +10,7 @@ const app_engine_url = env.local;
 const user_sign_up = app_engine_url + '/signup' //post
 const user_log_in = app_engine_url + '/login'  //post
 const project_metadata =app_engine_url +'/projects' //get
-
+const get_commits = app_engine_url + '/get-commits?project_id'
 
 // Create an axios instance with common configuration
 const api = axios.create({
@@ -116,6 +116,26 @@ export const totalProjects = async () => {
         return response.data.total;
     } catch (error) {
         console.error('Error fetching total projects:', error.response?.data || error.message);
+        throw error.response?.data || { message: 'Network error during project fetch' };
+    }
+};
+
+
+export const listProjects = async () => {
+    const uid = localStorage.getItem('auth_token');
+    if (!uid) {
+        throw new Error("User not authenticated");
+    }
+
+    try {
+        const response = await api.get(project_metadata, {
+            headers: {
+                'User-ID': uid
+            }
+        });
+        return response.data.projects;
+    } catch (error) {
+        console.error('Error listing projects:', error.response?.data || error.message);
         throw error.response?.data || { message: 'Network error during project fetch' };
     }
 };

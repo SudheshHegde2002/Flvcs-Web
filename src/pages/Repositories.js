@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { 
   FiFolder, FiGitCommit, FiClock, FiDownload, FiChevronRight,
-  FiMusic, FiHeadphones
+  FiMusic, FiHeadphones, FiAlertCircle
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import { listProjects } from '../utils/data_utils';
 
 const PageContainer = styled.div`
   display: flex;
@@ -242,45 +243,70 @@ const EmptyStateText = styled(motion.p)`
   max-width: 400px;
 `;
 
-// Mock data for projects and commits
-const mockProjects = [
-  { id: 1, name: 'Project Alpha', lastUpdated: '2023-10-15T14:30:00Z' },
-  { id: 2, name: 'Web Portfolio', lastUpdated: '2023-10-10T09:45:00Z' },
-  { id: 3, name: 'Mobile App', lastUpdated: '2023-09-28T16:20:00Z' },
-  { id: 4, name: 'Data Visualization', lastUpdated: '2023-09-15T11:10:00Z' },
-  { id: 5, name: 'API Service', lastUpdated: '2023-08-30T13:25:00Z' },
-];
+const LoadingText = styled.div`
+  color: ${({ theme }) => theme.colors.textLight};
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  text-align: center;
+  padding: ${({ theme }) => theme.spacing.xl};
+`;
 
+const ErrorMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.error};
+  padding: ${({ theme }) => theme.spacing.xl};
+  text-align: center;
+  
+  svg {
+    font-size: 2rem;
+    margin-bottom: ${({ theme }) => theme.spacing.md};
+  }
+`;
+
+// Mock data for commits
 const mockCommits = {
-  1: [
+  'test': [
     { id: 101, message: 'Initial commit', author: 'John Doe', date: '2023-10-15T14:30:00Z' },
     { id: 102, message: 'Add authentication', author: 'John Doe', date: '2023-10-14T10:15:00Z' },
     { id: 103, message: 'Fix login bug', author: 'Jane Smith', date: '2023-10-13T16:45:00Z' },
   ],
-  2: [
+  'test2': [
     { id: 201, message: 'Initial setup', author: 'Jane Smith', date: '2023-10-10T09:45:00Z' },
     { id: 202, message: 'Add portfolio projects', author: 'Jane Smith', date: '2023-10-08T14:20:00Z' },
-  ],
-  3: [
-    { id: 301, message: 'Create React Native project', author: 'Bob Johnson', date: '2023-09-28T16:20:00Z' },
-    { id: 302, message: 'Add navigation', author: 'Bob Johnson', date: '2023-09-27T11:30:00Z' },
-    { id: 303, message: 'Implement user profile', author: 'Alice Brown', date: '2023-09-25T09:10:00Z' },
-    { id: 304, message: 'Add settings screen', author: 'Bob Johnson', date: '2023-09-22T15:45:00Z' },
-  ],
-  4: [
-    { id: 401, message: 'Setup D3 graphs', author: 'Alice Brown', date: '2023-09-15T11:10:00Z' },
-    { id: 402, message: 'Add bar chart component', author: 'Alice Brown', date: '2023-09-14T08:30:00Z' },
-  ],
-  5: [
-    { id: 501, message: 'Create Express server', author: 'John Doe', date: '2023-08-30T13:25:00Z' },
-    { id: 502, message: 'Add user routes', author: 'John Doe', date: '2023-08-28T10:15:00Z' },
-    { id: 503, message: 'Implement authentication middleware', author: 'Jane Smith', date: '2023-08-25T16:40:00Z' },
-  ],
+  ]
 };
 
 const Repositories = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedCommit, setSelectedCommit] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const projectsData = await listProjects();
+        // Transform the project names into objects with IDs
+        const formattedProjects = projectsData.map((name, index) => ({
+          id: name, // Using name as ID since that's what we'll need for commits
+          name: name,
+          lastUpdated: new Date().toISOString() // Placeholder for now
+        }));
+        setProjects(formattedProjects);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch projects:', err);
+        setError(err.message || 'Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
   
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -306,6 +332,49 @@ const Repositories = () => {
     alert(`Download started for commit: ${commit.message}`);
   };
   
+  const renderProjectsList = () => {
+    if (loading) {
+      return <LoadingText>Loading projects...</LoadingText>;
+    }
+    
+    if (error) {
+      return (
+        <ErrorMessage>
+          <FiAlertCircle />
+          <p>{error}</p>
+        </ErrorMessage>
+      );
+    }
+    
+    if (projects.length === 0) {
+      return <LoadingText>No projects found</LoadingText>;
+    }
+    
+    return (
+      <RepoList>
+        {projects.map(project => (
+          <RepoItem 
+            key={project.id}
+            active={selectedProject && selectedProject.id === project.id}
+            onClick={() => handleProjectClick(project)}
+            whileTap={{ scale: 0.98 }}
+          >
+            <RepoIcon>
+              <FiFolder />
+            </RepoIcon>
+            <RepoDetails>
+              <h3>{project.name}</h3>
+              {project.lastUpdated && (
+                <p>Updated {formatDate(project.lastUpdated)}</p>
+              )}
+            </RepoDetails>
+            <ChevronIcon active={selectedProject && selectedProject.id === project.id ? 1 : 0} />
+          </RepoItem>
+        ))}
+      </RepoList>
+    );
+  };
+  
   return (
     <DashboardLayout>
       <PageContainer>
@@ -316,25 +385,7 @@ const Repositories = () => {
         <RepositoriesContainer>
           <RepoListContainer>
             <RepoListHeader>Projects</RepoListHeader>
-            <RepoList>
-              {mockProjects.map(project => (
-                <RepoItem 
-                  key={project.id}
-                  active={selectedProject && selectedProject.id === project.id}
-                  onClick={() => handleProjectClick(project)}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <RepoIcon>
-                    <FiFolder />
-                  </RepoIcon>
-                  <RepoDetails>
-                    <h3>{project.name}</h3>
-                    <p>Updated {formatDate(project.lastUpdated)}</p>
-                  </RepoDetails>
-                  <ChevronIcon active={selectedProject && selectedProject.id === project.id ? 1 : 0} />
-                </RepoItem>
-              ))}
-            </RepoList>
+            {renderProjectsList()}
           </RepoListContainer>
           
           {selectedProject ? (
@@ -343,7 +394,7 @@ const Repositories = () => {
                 <div>{selectedProject.name} - Commits</div>
               </CommitsHeader>
               <CommitsList>
-                {mockCommits[selectedProject.id].map(commit => (
+                {mockCommits[selectedProject.id]?.map(commit => (
                   <CommitItem 
                     key={commit.id}
                     active={selectedCommit && selectedCommit.id === commit.id}
@@ -373,7 +424,9 @@ const Repositories = () => {
                       </Button>
                     </CommitActions>
                   </CommitItem>
-                ))}
+                )) || (
+                  <LoadingText>No commits found for this project</LoadingText>
+                )}
               </CommitsList>
             </CommitsContainer>
           ) : (
