@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiFolder, FiGitCommit, FiClock, FiDownload, FiChevronRight,
-  FiMusic, FiHeadphones, FiAlertCircle, FiChevronDown, FiGitBranch
+  FiMusic, FiHeadphones, FiAlertCircle, FiChevronDown, FiGitBranch,
+  FiArrowLeft
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { listProjects, getCommits, download_commit_file } from '../utils/data_utils';
+import useResponsive from '../utils/useResponsive';
 
 const PageContainer = styled.div`
   display: flex;
@@ -28,6 +30,10 @@ const PageTitle = styled.h1`
   font-size: ${({ theme }) => theme.fontSizes.xxl};
   color: ${({ theme }) => theme.colors.text};
   margin: 0;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: ${({ theme }) => theme.fontSizes.xl};
+  }
 `;
 
 const RepositoriesContainer = styled.div`
@@ -35,6 +41,12 @@ const RepositoriesContainer = styled.div`
   gap: ${({ theme }) => theme.spacing.xl};
   height: calc(100vh - 180px);
   overflow: hidden;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
+    height: auto;
+    gap: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const RepoListContainer = styled(Card)`
@@ -43,17 +55,44 @@ const RepoListContainer = styled(Card)`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-width: 100%;
+    ${({ hideOnMobile }) => hideOnMobile && 'display: none;'}
+  }
 `;
 
 const RepoListHeader = styled.div`
   padding: ${({ theme }) => theme.spacing.lg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+  
+  svg {
+    margin-right: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const RepoList = styled.div`
   overflow-y: auto;
   flex: 1;
+  max-height: calc(100vh - 250px);
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-height: 60vh;
+  }
 `;
 
 const RepoItem = styled(motion.div)`
@@ -119,6 +158,10 @@ const CommitsContainer = styled(Card)`
   display: ${({ visible }) => visible ? 'flex' : 'none'};
   flex-direction: column;
   overflow: hidden;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: ${({ visibleMobile }) => visibleMobile ? 'flex' : 'none'};
+  }
 `;
 
 const CommitsHeader = styled.div`
@@ -133,6 +176,11 @@ const CommitsHeader = styled.div`
 const CommitsList = styled.div`
   overflow-y: auto;
   flex: 1;
+  max-height: calc(100vh - 250px);
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-height: 60vh;
+  }
 `;
 
 const CommitItem = styled(motion.div)`
@@ -186,6 +234,12 @@ const CommitDetails = styled.div`
 const CommitActions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    button span {
+      display: none;
+    }
+  }
 `;
 
 const TimeInfo = styled.div`
@@ -208,6 +262,10 @@ const EmptyStateContainer = styled(Card)`
   align-items: center;
   text-align: center;
   padding: ${({ theme }) => theme.spacing.xxl};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const MusicNotes = styled(motion.div)`
@@ -333,6 +391,7 @@ const DropdownItem = styled.button`
 `;
 
 const Repositories = () => {
+  const { isMobile } = useResponsive();
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedCommit, setSelectedCommit] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -345,6 +404,9 @@ const Repositories = () => {
   const [commitsLoading, setCommitsLoading] = useState(false);
   const [commitsError, setCommitsError] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // For mobile view
+  const [showCommitsMobile, setShowCommitsMobile] = useState(false);
   
   const dropdownRef = useRef(null);
 
@@ -483,6 +545,17 @@ const Repositories = () => {
     setBranches([]);
     setSelectedBranch(null);
     setCommits([]);
+    
+    // In mobile view, show commits when a project is selected
+    if (isMobile) {
+      setShowCommitsMobile(true);
+    }
+  };
+  
+  const handleBackToProjects = () => {
+    if (isMobile) {
+      setShowCommitsMobile(false);
+    }
   };
   
   const handleCommitClick = (commit) => {
@@ -612,7 +685,7 @@ const Repositories = () => {
               handleDownload(commit);
             }}
           >
-            <FiDownload /> Download
+            <FiDownload /> <span>Download</span>
           </Button>
         </CommitActions>
       </CommitItem>
@@ -627,14 +700,32 @@ const Repositories = () => {
         </PageHeader>
         
         <RepositoriesContainer>
-          <RepoListContainer>
-            <RepoListHeader>Projects</RepoListHeader>
-            {renderProjectsList()}
-          </RepoListContainer>
+          <AnimatePresence mode="wait">
+            <RepoListContainer
+              hideOnMobile={isMobile && showCommitsMobile}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <RepoListHeader>Projects</RepoListHeader>
+              {renderProjectsList()}
+            </RepoListContainer>
+          </AnimatePresence>
           
           {selectedProject ? (
-            <CommitsContainer visible={true}>
+            <CommitsContainer 
+              visible={!isMobile || (isMobile && selectedProject)}
+              visibleMobile={isMobile && showCommitsMobile}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               <CommitsHeader>
+                {isMobile && (
+                  <BackButton onClick={handleBackToProjects}>
+                    <FiArrowLeft /> Back
+                  </BackButton>
+                )}
                 <div>{selectedProject.name}{selectedBranch ? ` - ${selectedBranch}` : ''}</div>
                 
                 {branches.length > 0 && (
@@ -698,7 +789,7 @@ const Repositories = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Ready to Orchestrate Your Code?
+                Ready to Orchestrate Your Project?
               </EmptyStateTitle>
               <EmptyStateText
                 initial={{ opacity: 0, y: 20 }}
