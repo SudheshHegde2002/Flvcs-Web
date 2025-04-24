@@ -8,7 +8,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import Repository from './pages/Repository';
 import Repositories from './pages/Repositories';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
@@ -38,11 +37,6 @@ function App() {
             <Route path="/repositories" element={
               <ProtectedRoute>
                 <Repositories />
-              </ProtectedRoute>
-            } />
-            <Route path="/repository/:id" element={
-              <ProtectedRoute>
-                <Repository />
               </ProtectedRoute>
             } />
             <Route path="/premium" element={

@@ -221,14 +221,6 @@ const Signup = () => {
             <Subtitle>Create an account to get started</Subtitle>
           </CardHeader>
           
-          <SocialLoginButton 
-            variant="outline" 
-            size="lg" 
-            onClick={handleGithubSignup} 
-            fullWidth
-          >
-            <FiGithub /> Sign up with GitHub
-          </SocialLoginButton>
           
           <Divider>
             <span>OR</span>

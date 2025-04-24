@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const env = {
-    prod: '',
+    prod: 'https://flvcs-f7ccb.el.r.appspot.com',
     local: 'http://127.0.0.1:5000'
 };
 
