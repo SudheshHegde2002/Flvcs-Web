@@ -11,7 +11,7 @@ const user_sign_up = app_engine_url + '/signup' //post
 const user_log_in = app_engine_url + '/login'  //post
 const project_metadata =app_engine_url +'/projects' //get
 const get_commits = app_engine_url + '/get-commits'
-
+const download_commit = app_engine_url + '/download'
 // Create an axios instance with common configuration
 const api = axios.create({
     headers: {
@@ -158,5 +158,42 @@ export const getCommits = async (projectName) => {
     } catch (error) {
         console.error('Error fetching commits:', error.response?.data || error.message);
         throw error.response?.data || { message: 'Network error during commits fetch' };
+    }
+};
+
+export const download_commit_file = async (commitName) => {
+    const uid = localStorage.getItem('auth_token');
+    if (!uid) {
+        throw new Error("User not authenticated");
+    }
+    const endpoint = `${download_commit}?commit=${encodeURIComponent(commitName)}`;
+    
+    try {
+        const response = await api.get(endpoint, {
+            headers: {
+                'User-ID': uid
+            },
+            responseType: 'blob' 
+        });
+        
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        
+        const link = document.createElement('a');
+        link.href = url;
+        
+    
+        link.setAttribute('download', `${commitName}.zip`);
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        window.URL.revokeObjectURL(url);
+        
+        return true;
+    } catch (error) {
+        console.error('Error downloading data:', error.response?.data || error.message);
+        throw error.response?.data || { message: 'Network error during download' };
     }
 };

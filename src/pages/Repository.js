@@ -12,6 +12,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
+import { download_commit_file } from '../utils/data_utils';
 
 const RepoContainer = styled.div`
   display: flex;
@@ -404,6 +405,12 @@ const CommitDetails = styled.div`
   }
 `;
 
+const CommitActions = styled.div`
+  margin-left: auto;
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.md};
+`;
+
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -626,6 +633,38 @@ const Repository = () => {
       // In a real app, we would call an API to delete the repository
       console.log('Deleting repository:', repository.id);
       navigate('/dashboard');
+    }
+  };
+
+  const handleDownloadCommit = async (commit, e) => {
+    e.stopPropagation();
+    try {
+      // Call the API to get the file data
+      const fileData = await download_commit_file(commit.message);
+      
+      // Create a blob from the data
+      const blob = new Blob([JSON.stringify(fileData)], { type: 'application/json' });
+      
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${commit.message.replace(/[^a-z0-9]/gi, '_')}.json`;
+      
+      // Append to document, click it, and remove it
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Release the blob URL
+      URL.revokeObjectURL(url);
+      
+      console.log(`Downloaded files for commit ${commit.message}`);
+    } catch (error) {
+      console.error('Error downloading commit:', error);
+      alert(`Error downloading commit: ${error.message}`);
     }
   };
 
@@ -869,6 +908,15 @@ const Repository = () => {
                       {commit.author} committed on {formatDate(commit.date)} • {commit.hash}
                     </p>
                   </CommitDetails>
+                  <CommitActions>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => handleDownloadCommit(commit, e)}
+                    >
+                      <FiDownload /> Download
+                    </Button>
+                  </CommitActions>
                 </CommitItem>
               ))
             )}

@@ -9,7 +9,7 @@ import {
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { listProjects, getCommits } from '../utils/data_utils';
+import { listProjects, getCommits, download_commit_file } from '../utils/data_utils';
 
 const PageContainer = styled.div`
   display: flex;
@@ -495,10 +495,35 @@ const Repositories = () => {
     setSelectedCommit(null);
   };
   
-  const handleDownload = (commit) => {
-    // In a real app, this would trigger the API call to download the commit files
-    console.log(`Downloading files for commit ${commit.id}`);
-    alert(`Download started for commit: ${commit.message}`);
+  const handleDownload = async (commit) => {
+    try {
+      // Call the API to get the file data
+      const fileData = await download_commit_file(commit.message);
+      
+      // Create a blob from the data
+      const blob = new Blob([JSON.stringify(fileData)], { type: 'application/json' });
+      
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${commit.message.replace(/[^a-z0-9]/gi, '_')}.json`;
+      
+      // Append to document, click it, and remove it
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Release the blob URL
+      URL.revokeObjectURL(url);
+      
+      console.log(`Downloaded files for commit ${commit.message}`);
+    } catch (error) {
+      console.error('Error downloading commit:', error);
+      alert(`Error downloading commit: ${error.message}`);
+    }
   };
   
   const renderProjectsList = () => {
