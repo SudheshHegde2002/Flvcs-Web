@@ -199,7 +199,6 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        style={{ width: '100%' }}
       >
         <LoginCard elevation="lg">
           <CardHeader>
@@ -242,9 +241,6 @@ const Login = () => {
               required
             />
             
-            <ForgotPassword to="/forgot-password">
-              Forgot password?
-            </ForgotPassword>
             
             <Button 
               type="submit" 

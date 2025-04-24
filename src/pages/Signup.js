@@ -16,16 +16,32 @@ const PageContainer = styled.div`
   justify-content: center;
   background: linear-gradient(135deg, #6200EA 0%, #B388FF 100%);
   padding: ${({ theme }) => theme.spacing.lg};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const SignupCard = styled(Card)`
-  max-width: 450px;
+  max-width: 500px;
   width: 100%;
+  
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 500px;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    max-width: 100%;
+  }
 `;
 
 const CardHeader = styled.div`
   text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const Logo = styled(motion.h1)`
@@ -36,11 +52,23 @@ const Logo = styled(motion.h1)`
   background: linear-gradient(135deg, #6200EA 0%, #B388FF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: ${({ theme }) => theme.fontSizes.xxl};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.xl};
+  }
 `;
 
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.colors.textLight};
   font-size: ${({ theme }) => theme.fontSizes.md};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+  }
 `;
 
 const Form = styled.form`
@@ -90,6 +118,11 @@ const LoginPrompt = styled.div`
   a {
     color: ${({ theme }) => theme.colors.primary};
     font-weight: 500;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-top: ${({ theme }) => theme.spacing.md};
+    font-size: ${({ theme }) => theme.fontSizes.xs};
   }
 `;
 
@@ -195,11 +228,6 @@ const Signup = () => {
     }
   };
 
-  const handleGithubSignup = () => {
-    // GitHub signup logic would be implemented here
-    console.log('GitHub signup clicked');
-    alert('GitHub signup would be implemented in a real application');
-  };
 
   return (
     <PageContainer>
@@ -266,16 +294,13 @@ const Signup = () => {
               required
             />
             
-            <TermsText>
-              By signing up, you agree to our <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
-            </TermsText>
-            
             <Button 
               type="submit" 
               variant="primary" 
               size="lg" 
               disabled={isLoading} 
               style={{ width: '100%' }}
+              fullWidthOnMobile={true}
             >
               {isLoading ? 'Creating account...' : (
                 <>
