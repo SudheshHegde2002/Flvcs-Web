@@ -5,7 +5,7 @@ const env = {
     local: 'http://127.0.0.1:5000'
 };
 
-const app_engine_url = env.local;
+const app_engine_url = env.prod;
 
 const user_sign_up = app_engine_url + '/signup' //post
 const user_log_in = app_engine_url + '/login'  //post

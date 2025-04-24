@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  FiUser, FiLock, FiCreditCard, FiLogOut, FiSave, FiZap
+import {  FiCreditCard, FiLogOut, FiZap
 } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import Input from '../components/common/Input';
 
 const SettingsContainer = styled.div`
   display: flex;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiDownload, FiMusic, FiServer, FiLayers, FiCheck, FiRefreshCw, FiX } from 'react-icons/fi';
+import { FiServer, FiLayers, FiCheck, FiRefreshCw, FiX } from 'react-icons/fi';
 import { FaWindows, FaApple } from 'react-icons/fa';
 
 import ThemeToggle from '../components/common/ThemeToggle';

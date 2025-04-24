@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiSettings, FiDownload, FiCreditCard, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiSettings, FiDownload, FiLogOut } from 'react-icons/fi';
 
 import ThemeToggle from '../common/ThemeToggle';
 

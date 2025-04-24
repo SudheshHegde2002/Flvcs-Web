@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiMail, FiStar, FiDatabase, FiClock, FiHeadphones, FiShield } from 'react-icons/fi';
+import { FiMail, FiStar, FiDatabase, FiClock, FiHeadphones } from 'react-icons/fi';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
 import Card from '../components/common/Card';

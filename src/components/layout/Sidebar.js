@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FiHome, FiFolder, FiStar, FiArchive, FiSettings, FiZap } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { FiHome, FiFolder, FiSettings, FiZap } from 'react-icons/fi';
+
 
 const SidebarContainer = styled.aside`
   background-color: ${({ theme }) => theme.colors.cardBg};

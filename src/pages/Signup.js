@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiUserPlus, FiGithub } from 'react-icons/fi';
+import { FiUserPlus } from 'react-icons/fi';
 
 import { signupUser } from '../utils/data_utils';
 import Input from '../components/common/Input';
