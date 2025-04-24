@@ -84,6 +84,25 @@ const StyledButton = styled(motion.button)`
   svg {
     font-size: 1.2em;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    ${({ size }) => {
+      if (size === 'lg') {
+        return ButtonSizes['md'];
+      }
+      if (size === 'md') {
+        return ButtonSizes['sm'];
+      }
+      return '';
+    }}
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    ${({ size, fullWidthOnMobile }) => 
+      fullWidthOnMobile ? 'width: 100%;' : ''}
+    
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
+  }
 `;
 
 const Button = ({
@@ -93,6 +112,7 @@ const Button = ({
   disabled = false,
   onClick,
   type = 'button',
+  fullWidthOnMobile = false,
   ...props
 }) => {
   return (
@@ -104,6 +124,7 @@ const Button = ({
       type={type}
       whileTap={{ scale: 0.98 }}
       whileHover={{ scale: 1.02 }}
+      fullWidthOnMobile={fullWidthOnMobile}
       {...props}
     >
       {children}

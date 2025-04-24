@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiSettings, FiDownload, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiSettings, FiDownload, FiLogOut, FiMenu } from 'react-icons/fi';
 
 import ThemeToggle from '../common/ThemeToggle';
 
@@ -17,6 +17,14 @@ const HeaderContainer = styled.header`
   top: 0;
   z-index: 10;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  }
 `;
 
 const Logo = styled(Link)`
@@ -33,12 +41,40 @@ const Logo = styled(Link)`
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.lg};
+  }
+`;
+
+const MenuButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: ${({ theme }) => theme.spacing.md};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const UserNav = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.lg};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    gap: ${({ theme }) => theme.spacing.md};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const IconButton = styled(motion.button)`
@@ -161,21 +197,40 @@ const DownloadButton = styled(Link)`
   svg {
     font-size: 16px;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.md}`};
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    span {
+      display: none;
+    }
+    
+    padding: ${({ theme }) => theme.spacing.sm};
+    border-radius: ${({ theme }) => theme.borderRadius.full};
+  }
 `;
 
-const Header = () => {
+const Header = ({ toggleSidebar }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <HeaderContainer>
-      <Logo to="/dashboard">
-        <span>FLVCS</span>
-      </Logo>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <MenuButton onClick={toggleSidebar}>
+          <FiMenu />
+        </MenuButton>
+        <Logo to="/dashboard">
+          <span>FLVCS</span>
+        </Logo>
+      </div>
 
       <UserNav>
         <DownloadButton to="/download-client">
-          <FiDownload /> Download Client
+          <FiDownload /> <span>Download Client</span>
         </DownloadButton>
         <ThemeToggle />
 

@@ -21,6 +21,18 @@ const CardContainer = styled(motion.div)`
     box-shadow: ${({ theme, interactive }) => 
       interactive ? theme.shadows.md : ''};
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme, padding }) => 
+      padding && padding !== 'sm' ? 
+        theme.spacing[padding === 'xl' || padding === 'xxl' ? 'lg' : padding === 'lg' ? 'md' : padding] 
+        : theme.spacing.md};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: ${({ theme }) => theme.spacing.md};
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
+  }
 `;
 
 const Card = ({

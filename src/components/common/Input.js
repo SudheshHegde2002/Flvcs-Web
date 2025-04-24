@@ -7,6 +7,10 @@ const InputWrapper = styled.div`
   flex-direction: column;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
   width: 100%;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const Label = styled.label`
@@ -41,12 +45,25 @@ const StyledInput = styled(motion.input)`
     background-color: ${({ theme }) => theme.colors.border};
     cursor: not-allowed;
   }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
+  }
 `;
 
 const ErrorMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
   font-size: ${({ theme }) => theme.fontSizes.sm};
   margin-top: ${({ theme }) => theme.spacing.xs};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.xs};
+  }
 `;
 
 const Input = ({

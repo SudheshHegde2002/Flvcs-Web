@@ -16,16 +16,28 @@ const PageContainer = styled.div`
   justify-content: center;
   background: linear-gradient(135deg, #6200EA 0%, #B388FF 100%);
   padding: ${({ theme }) => theme.spacing.lg};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const LoginCard = styled(Card)`
   max-width: 450px;
   width: 100%;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    max-width: 100%;
+  }
 `;
 
 const CardHeader = styled.div`
   text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const Logo = styled(motion.h1)`
@@ -36,11 +48,23 @@ const Logo = styled(motion.h1)`
   background: linear-gradient(135deg, #6200EA 0%, #B388FF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: ${({ theme }) => theme.fontSizes.xxl};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.xl};
+  }
 `;
 
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.colors.textLight};
   font-size: ${({ theme }) => theme.fontSizes.md};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+  }
 `;
 
 const Form = styled.form`
@@ -52,6 +76,11 @@ const ForgotPassword = styled(Link)`
   text-align: right;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
   font-size: ${({ theme }) => theme.fontSizes.sm};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: ${({ theme }) => theme.spacing.md};
+    font-size: ${({ theme }) => theme.fontSizes.xs};
+  }
 `;
 
 const SignupPrompt = styled.div`
@@ -63,6 +92,11 @@ const SignupPrompt = styled.div`
   a {
     color: ${({ theme }) => theme.colors.primary};
     font-weight: 500;
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-top: ${({ theme }) => theme.spacing.md};
+    font-size: ${({ theme }) => theme.fontSizes.xs};
   }
 `;
 
@@ -165,6 +199,7 @@ const Login = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
+        style={{ width: '100%' }}
       >
         <LoginCard elevation="lg">
           <CardHeader>
@@ -217,6 +252,7 @@ const Login = () => {
               size="lg" 
               disabled={isLoading} 
               style={{ width: '100%' }}
+              fullWidthOnMobile={true}
             >
               {isLoading ? 'Logging in...' : (
                 <>
