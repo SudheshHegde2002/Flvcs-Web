@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Repository from './pages/Repository';
+import Repositories from './pages/Repositories';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 import LoginFromClient from './pages/LoginFromClient';
@@ -31,6 +32,11 @@ function App() {
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/repositories" element={
+              <ProtectedRoute>
+                <Repositories />
               </ProtectedRoute>
             } />
             <Route path="/repository/:id" element={
