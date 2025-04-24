@@ -5,13 +5,14 @@ const env = {
     local: 'http://127.0.0.1:5000'
 };
 
-const app_engine_url = env.prod;
+const app_engine_url = env.local;
 
 const user_sign_up = app_engine_url + '/signup' //post
 const user_log_in = app_engine_url + '/login'  //post
 const project_metadata =app_engine_url +'/projects' //get
 const get_commits = app_engine_url + '/get-commits'
 const download_commit = app_engine_url + '/download'
+const download_windows = app_engine_url + '/download-win'//get
 // Create an axios instance with common configuration
 const api = axios.create({
     headers: {
@@ -195,5 +196,50 @@ export const download_commit_file = async (commitName) => {
     } catch (error) {
         console.error('Error downloading data:', error.response?.data || error.message);
         throw error.response?.data || { message: 'Network error during download' };
+    }
+};
+
+export const downloadExeFile = async () => {
+    
+    try {
+        // Create a separate axios instance for binary downloads
+        const response = await axios({
+            url: download_windows,
+            method: 'GET',
+            responseType: 'blob', // Important for binary data
+        });
+        
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        
+        // Get the filename from content-disposition if available, otherwise use default
+        let filename = 'application.exe';
+        const contentDisposition = response.headers['content-disposition'];
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch && filenameMatch[1]) {
+                filename = filenameMatch[1];
+            }
+        }
+        
+        // Create and click a download link
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        return true;
+    } catch (error) {
+        console.error('Error downloading exe file:', error);
+        throw { 
+            message: 'Error during exe file download', 
+            details: error.response?.data || error.message 
+        };
     }
 };

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiServer, FiLayers, FiCheck, FiRefreshCw, FiX } from 'react-icons/fi';
 import { FaWindows, FaApple } from 'react-icons/fa';
+import { downloadExeFile } from '../utils/data_utils';
 
 import ThemeToggle from '../components/common/ThemeToggle';
 
@@ -332,20 +333,39 @@ const DownloadClient = () => {
   const [showThankYou, setShowThankYou] = useState(false);
   const [downloadType, setDownloadType] = useState('');
   const [downloadStarted, setDownloadStarted] = useState(false);
+  const [downloadError, setDownloadError] = useState(null);
   
   const handleDownload = (type) => {
     setDownloadType(type);
     setShowThankYou(true);
+    setDownloadError(null);
     
-    // Simulate download starting after 2 seconds
-    setTimeout(() => {
-      setDownloadStarted(true);
-    }, 2000);
+    // Call the downloadExeFile API if Windows is selected
+    if (type === 'Windows') {
+      // Simulate download starting after 2 seconds
+      setTimeout(async () => {
+        try {
+          await downloadExeFile();
+          setDownloadStarted(true);
+        } catch (error) {
+          console.error('Error downloading Windows exe:', error);
+          // Handle download error gracefully
+          setDownloadStarted(false);
+          setDownloadError(error.message || 'Failed to download the application. Please try again later.');
+        }
+      }, 2000);
+    } else {
+      // For other platforms, just simulate download
+      setTimeout(() => {
+        setDownloadStarted(true);
+      }, 2000);
+    }
   };
   
   const closeThankYou = () => {
     setShowThankYou(false);
     setDownloadStarted(false);
+    setDownloadError(null);
   };
   
   return (
@@ -484,6 +504,22 @@ const DownloadClient = () => {
                 >
                   <FiCheck style={{ fontSize: '3rem', color: 'green', marginBottom: '1rem' }} />
                   <p>Your download has started!</p>
+                </motion.div>
+              ) : downloadError ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <FiX style={{ fontSize: '3rem', color: 'red', marginBottom: '1rem' }} />
+                  <p>{downloadError}</p>
+                  <DownloadButton
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleDownload(downloadType)}
+                    style={{ marginTop: '1rem' }}
+                  >
+                    Try Again
+                  </DownloadButton>
                 </motion.div>
               ) : (
                 <motion.div
